@@ -1,5 +1,5 @@
 import { NextRequest } from 'next/server';
-import { getMessages, sendMessage, markMessagesAsRead } from '../../../lib/database';
+import { getMessages, sendMessage, markMessagesAsRead } from '@/lib/database';
 
 export const runtime = 'edge';
 

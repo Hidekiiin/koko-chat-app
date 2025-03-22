@@ -1,5 +1,5 @@
 import { NextRequest } from 'next/server';
-import { getRecentChats } from '../../../lib/database';
+import { getRecentChats } from '@/lib/database';
 
 export const runtime = 'edge';
 

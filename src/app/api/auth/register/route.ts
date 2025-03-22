@@ -1,5 +1,5 @@
 import { NextRequest, NextResponse } from 'next/server';
-import { getUserByEmail, createUser } from '../../../lib/database';
+import { getUserByEmail, createUser } from '@/lib/database';
 
 export const runtime = 'edge';
 
