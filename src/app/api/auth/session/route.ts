@@ -1,7 +1,24 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { getUser } from '@/lib/database';
 
+
 export const runtime = 'edge';
+
+export async function GET(request: NextRequest) {
+  try {
+    // セッション確認のロジックをシンプルにする
+    return NextResponse.json({ 
+      authenticated: false,
+      user: null
+    });
+  } catch (error) {
+    console.error('Session error:', error);
+    return NextResponse.json({ 
+      authenticated: false,
+      error: 'セッションの確認に失敗しました'
+    }, { status: 500 });
+  }
+}
 
 export async function GET(request: NextRequest) {
   try {

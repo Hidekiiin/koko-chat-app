@@ -4,6 +4,25 @@ import { Card } from '@/components/ui/card'
 import { ScrollArea } from '@/components/ui/scroll-area'
 import { Plus } from 'lucide-react'
 import { useEffect, useOptimistic, useState, useTransition } from 'react'
+'use client';
+
+import { useEffect } from 'react';
+import { useRouter } from 'next/navigation';
+
+export default function Home() {
+  const router = useRouter();
+  
+  useEffect(() => {
+    router.push('/login');
+  }, [router]);
+  
+  return (
+    <div className="flex min-h-screen items-center justify-center">
+      <p>リダイレクト中...</p>
+    </div>
+  );
+}
+
 import { getStats, incrementAndLog } from './counter'
 import { redirect } from 'next/navigation';
 
