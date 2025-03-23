@@ -5,6 +5,9 @@ import { ScrollArea } from '@/components/ui/scroll-area'
 import { Plus } from 'lucide-react'
 import { useEffect, useOptimistic, useState, useTransition } from 'react'
 import { getStats, incrementAndLog } from './counter'
+import { redirect } from 'next/navigation';
+
+redirect('/login');
 
 export default function Home() {
   const [stats, setStats] = useState<{ count: number; recentAccess: { accessed_at: string }[] }>({
