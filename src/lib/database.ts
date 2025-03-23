@@ -173,3 +173,36 @@ export async function getRecentChats(db: D1Database, userId: string): Promise<{u
     }
   }));
 }
+// src/lib/database.ts
+const isVercelProduction = process.env.VERCEL_ENV === 'production';
+
+// Vercel環境用のモックデータ
+const mockUsers = [
+  {
+    id: '1',
+    username: 'user1',
+    email: 'user1@example.com',
+    password: 'hashed_password',
+    avatar_url: '/default-avatar.png',
+    status: 'online',
+    last_seen: new Date().toISOString()
+  },
+  // 他のモックユーザー
+];
+
+const mockMessages = [
+  // モックメッセージデータ
+];
+
+// データベース関数
+export async function getUserByEmail(email: string) {
+  if (isVercelProduction) {
+    // Vercel環境ではモックデータを使用
+    return mockUsers.find(user => user.email === email) || null;
+  }
+  
+  // 通常の実装（ローカル環境用）
+  // 元のデータベース接続コード
+}
+
+// 他のデータベース関数も同様に修正

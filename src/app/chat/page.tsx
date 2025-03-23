@@ -1,190 +1,111 @@
 'use client';
 
-import React, { useState, useEffect } from 'react';
+import React, { useState } from 'react';
 import { useRouter } from 'next/navigation';
 import Link from 'next/link';
-import Image from 'next/image';
+import { MOCK_USERS } from '@/lib/mockData';
 
-interface ChatPreview {
-  user: {
-    id: string;
-    username: string;
-    avatar_url: string;
-    status: 'online' | 'offline' | 'away';
-    last_seen: string;
-  };
-  lastMessage: {
-    id: string;
-    content: string;
-    timestamp: string;
-    read: boolean;
-  };
-}
-
-export default function ChatListPage() {
-  const [chats, setChats] = useState<ChatPreview[]>([]);
-  const [isLoading, setIsLoading] = useState(true);
+export default function LoginPage() {
+  const [email, setEmail] = useState('');
+  const [password, setPassword] = useState('');
   const [error, setError] = useState('');
-  const [currentUser, setCurrentUser] = useState<any>(null);
+  const [isLoading, setIsLoading] = useState(false);
   const router = useRouter();
 
-  useEffect(() => {
-    // セッションチェック
-    const checkSession = async () => {
-      try {
-        const response = await fetch('/api/auth/session');
-        const data = await response.json();
-
-        if (!data.authenticated) {
-          router.push('/login');
-          return;
-        }
-
-        setCurrentUser(data.user);
-        fetchChats(data.user.id);
-      } catch (err) {
-        console.error('セッションチェックエラー:', err);
-        router.push('/login');
-      }
-    };
-
-    checkSession();
-  }, [router]);
-
-  const fetchChats = async (userId: string) => {
+  const handleSubmit = async (e: React.FormEvent) => {
+    e.preventDefault();
+    setError('');
     setIsLoading(true);
+
     try {
-      const response = await fetch(`/api/chats?userId=${userId}`);
+      // デモモードでは、メールアドレスが一致するユーザーを探す
+      const user = MOCK_USERS.find(u => u.email === email);
       
-      if (!response.ok) {
-        throw new Error('チャット一覧の取得に失敗しました');
+      if (user) {
+        // デモモードでは、パスワードチェックをスキップ
+        localStorage.setItem('currentUser', JSON.stringify(user));
+        router.push('/chat');
+      } else {
+        setError('メールアドレスまたはパスワードが正しくありません');
       }
-      
-      const data = await response.json();
-      setChats(data);
     } catch (err: any) {
-      setError(err.message);
+      setError(err.message || 'ログインに失敗しました');
     } finally {
       setIsLoading(false);
     }
   };
 
-  const handleLogout = async () => {
-    try {
-      await fetch('/api/auth/logout', { method: 'POST' });
-      router.push('/login');
-    } catch (err) {
-      console.error('ログアウトエラー:', err);
-    }
-  };
-
-  const formatTimestamp = (timestamp: string) => {
-    const date = new Date(timestamp);
-    const now = new Date();
-    const diffDays = Math.floor((now.getTime() - date.getTime()) / (1000 * 60 * 60 * 24));
-    
-    if (diffDays === 0) {
-      return date.toLocaleTimeString('ja-JP', { hour: '2-digit', minute: '2-digit' });
-    } else if (diffDays === 1) {
-      return '昨日';
-    } else if (diffDays < 7) {
-      const days = ['日', '月', '火', '水', '木', '金', '土'];
-      return days[date.getDay()] + '曜日';
-    } else {
-      return date.toLocaleDateString('ja-JP');
-    }
-  };
-
-  if (isLoading) {
-    return (
-      <div className="min-h-screen flex items-center justify-center bg-gray-50 dark:bg-gray-900">
-        <div className="animate-pulse flex space-x-2">
-          <div className="h-3 w-3 bg-blue-500 rounded-full"></div>
-          <div className="h-3 w-3 bg-blue-500 rounded-full"></div>
-          <div className="h-3 w-3 bg-blue-500 rounded-full"></div>
-        </div>
-      </div>
-    );
-  }
-
   return (
-    <div className="min-h-screen bg-gray-50 dark:bg-gray-900">
-      <div className="max-w-md mx-auto bg-white dark:bg-gray-800 shadow-lg">
-        {/* ヘッダー */}
-        <div className="flex items-center justify-between p-4 border-b border-gray-200 dark:border-gray-700">
-          <h1 className="text-xl font-semibold text-gray-900 dark:text-white">koko</h1>
-          {currentUser && (
-            <div className="flex items-center">
-              <span className="mr-2 text-sm text-gray-600 dark:text-gray-300">{currentUser.username}</span>
-              <button
-                onClick={handleLogout}
-                className="text-sm text-red-500 hover:text-red-700 dark:text-red-400 dark:hover:text-red-300"
-              >
-                ログアウト
-              </button>
-            </div>
-          )}
+    <div className="min-h-screen flex items-center justify-center bg-gray-50 dark:bg-gray-900 px-4 sm:px-6 lg:px-8">
+      <div className="max-w-md w-full space-y-8">
+        <div>
+          <h1 className="mt-6 text-center text-3xl font-extrabold text-gray-900 dark:text-white">koko</h1>
+          <h2 className="mt-2 text-center text-sm text-gray-600 dark:text-gray-400">
+            アカウントにログイン
+          </h2>
         </div>
-
-        {/* チャット一覧 */}
-        {error ? (
-          <div className="p-4 text-center text-red-500">{error}</div>
-        ) : chats.length === 0 ? (
-          <div className="p-8 text-center text-gray-500 dark:text-gray-400">
-            <p>チャットがありません</p>
-            <p className="mt-2 text-sm">新しい会話を始めましょう</p>
+        <form className="mt-8 space-y-6" onSubmit={handleSubmit}>
+          <div className="rounded-md shadow-sm -space-y-px">
+            <div>
+              <label htmlFor="email-address" className="sr-only">
+                メールアドレス
+              </label>
+              <input
+                id="email-address"
+                name="email"
+                type="email"
+                autoComplete="email"
+                required
+                className="appearance-none rounded-none relative block w-full px-3 py-2 border border-gray-300 dark:border-gray-700 placeholder-gray-500 dark:placeholder-gray-400 text-gray-900 dark:text-white dark:bg-gray-800 rounded-t-md focus:outline-none focus:ring-blue-500 focus:border-blue-500 focus:z-10 sm:text-sm"
+                placeholder="メールアドレス"
+                value={email}
+                onChange={(e) => setEmail(e.target.value)}
+              />
+            </div>
+            <div>
+              <label htmlFor="password" className="sr-only">
+                パスワード
+              </label>
+              <input
+                id="password"
+                name="password"
+                type="password"
+                autoComplete="current-password"
+                required
+                className="appearance-none rounded-none relative block w-full px-3 py-2 border border-gray-300 dark:border-gray-700 placeholder-gray-500 dark:placeholder-gray-400 text-gray-900 dark:text-white dark:bg-gray-800 rounded-b-md focus:outline-none focus:ring-blue-500 focus:border-blue-500 focus:z-10 sm:text-sm"
+                placeholder="パスワード"
+                value={password}
+                onChange={(e) => setPassword(e.target.value)}
+              />
+            </div>
           </div>
-        ) : (
-          <ul className="divide-y divide-gray-200 dark:divide-gray-700">
-            {chats.map((chat) => (
-              <li key={chat.user.id}>
-                <Link href={`/chat/${chat.user.id}`}>
-                  <div className="flex items-center p-4 hover:bg-gray-50 dark:hover:bg-gray-700 transition-colors duration-150">
-                    <div className="relative flex-shrink-0">
-                      <div className="h-12 w-12 rounded-full overflow-hidden">
-                        <Image
-                          src={chat.user.avatar_url || '/default-avatar.png'}
-                          alt={chat.user.username}
-                          width={48}
-                          height={48}
-                          className="object-cover"
-                        />
-                      </div>
-                      <div className={`absolute bottom-0 right-0 h-3 w-3 rounded-full border-2 border-white dark:border-gray-800 ${
-                        chat.user.status === 'online' 
-                          ? 'bg-green-500' 
-                          : chat.user.status === 'away' 
-                            ? 'bg-yellow-500' 
-                            : 'bg-gray-400'
-                      }`}></div>
-                    </div>
-                    
-                    <div className="ml-3 flex-grow">
-                      <div className="flex items-center justify-between">
-                        <p className="text-sm font-medium text-gray-900 dark:text-white">
-                          {chat.user.username}
-                        </p>
-                        <p className="text-xs text-gray-500 dark:text-gray-400">
-                          {formatTimestamp(chat.lastMessage.timestamp)}
-                        </p>
-                      </div>
-                      <div className="flex items-center justify-between">
-                        <p className="text-sm text-gray-500 dark:text-gray-400 truncate max-w-[180px]">
-                          {chat.lastMessage.content}
-                        </p>
-                        {!chat.lastMessage.read && chat.lastMessage.sender_id !== currentUser?.id && (
-                          <span className="inline-flex items-center justify-center h-5 w-5 rounded-full bg-blue-500 text-white text-xs">
-                            新
-                          </span>
-                        )}
-                      </div>
-                    </div>
-                  </div>
-                </Link>
-              </li>
-            ))}
-          </ul>
-        )}
+
+          {error && (
+            <div className="text-red-500 text-sm text-center">{error}</div>
+          )}
+
+          <div>
+            <button
+              type="submit"
+              disabled={isLoading}
+              className="group relative w-full flex justify-center py-2 px-4 border border-transparent text-sm font-medium rounded-md text-white bg-gradient-to-r from-blue-500 to-indigo-600 hover:from-blue-600 hover:to-indigo-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500"
+            >
+              {isLoading ? 'ログイン中...' : 'ログイン'}
+            </button>
+          </div>
+
+          <div className="text-sm text-center">
+            <Link href="/register" className="font-medium text-blue-600 hover:text-blue-500 dark:text-blue-400 dark:hover:text-blue-300">
+              アカウントをお持ちでない方はこちら
+            </Link>
+          </div>
+          
+          <div className="text-xs text-center text-gray-500 dark:text-gray-400 mt-4">
+            <p>デモモード: 以下のアカウントでログインできます</p>
+            <p>メール: user1@example.com</p>
+            <p>パスワード: 任意の文字列</p>
+          </div>
+        </form>
       </div>
     </div>
   );

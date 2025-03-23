@@ -3,6 +3,7 @@
 import React, { useState } from 'react';
 import { useRouter } from 'next/navigation';
 import Link from 'next/link';
+import { MOCK_USERS } from '@/lib/mockData';
 
 export default function LoginPage() {
   const [email, setEmail] = useState('');
@@ -17,24 +18,18 @@ export default function LoginPage() {
     setIsLoading(true);
 
     try {
-      const response = await fetch('/api/auth/login', {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify({ email, password }),
-      });
-
-      const data = await response.json();
-
-      if (!response.ok) {
-        throw new Error(data.error || 'ログインに失敗しました');
+      // デモモードでは、メールアドレスが一致するユーザーを探す
+      const user = MOCK_USERS.find(u => u.email === email);
+      
+      if (user) {
+        // デモモードでは、パスワードチェックをスキップ
+        localStorage.setItem('currentUser', JSON.stringify(user));
+        router.push('/chat');
+      } else {
+        setError('メールアドレスまたはパスワードが正しくありません');
       }
-
-      // ログイン成功
-      router.push('/chat');
     } catch (err: any) {
-      setError(err.message);
+      setError(err.message || 'ログインに失敗しました');
     } finally {
       setIsLoading(false);
     }
@@ -46,7 +41,7 @@ export default function LoginPage() {
         <div>
           <h1 className="mt-6 text-center text-3xl font-extrabold text-gray-900 dark:text-white">koko</h1>
           <h2 className="mt-2 text-center text-sm text-gray-600 dark:text-gray-400">
-            おしゃれなチャットアプリへようこそ
+            アカウントにログイン
           </h2>
         </div>
         <form className="mt-8 space-y-6" onSubmit={handleSubmit}>
@@ -103,6 +98,12 @@ export default function LoginPage() {
             <Link href="/register" className="font-medium text-blue-600 hover:text-blue-500 dark:text-blue-400 dark:hover:text-blue-300">
               アカウントをお持ちでない方はこちら
             </Link>
+          </div>
+          
+          <div className="text-xs text-center text-gray-500 dark:text-gray-400 mt-4">
+            <p>デモモード: 以下のアカウントでログインできます</p>
+            <p>メール: user1@example.com</p>
+            <p>パスワード: 任意の文字列</p>
           </div>
         </form>
       </div>

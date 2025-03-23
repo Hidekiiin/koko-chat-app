@@ -1,74 +1,38 @@
-'use client'
-import { Button } from '@/components/ui/button'
-import { Card } from '@/components/ui/card'
-import { ScrollArea } from '@/components/ui/scroll-area'
-import { Plus } from 'lucide-react'
-import { useEffect, useOptimistic, useState, useTransition } from 'react'
 'use client';
 
-import { useEffect } from 'react';
-import { useRouter } from 'next/navigation';
+import Link from 'next/link';
 
 export default function Home() {
-  const router = useRouter();
-  
-  useEffect(() => {
-    router.push('/login');
-  }, [router]);
-  
   return (
-    <div className="flex min-h-screen items-center justify-center">
-      <p>リダイレクト中...</p>
+    <div className="flex min-h-screen flex-col items-center justify-center p-4 bg-gray-50 dark:bg-gray-900">
+      <div className="w-full max-w-md p-8 space-y-8 bg-white dark:bg-gray-800 rounded-xl shadow-md">
+        <div className="text-center">
+          <h1 className="text-4xl font-bold text-gray-900 dark:text-white">koko</h1>
+          <p className="mt-2 text-gray-600 dark:text-gray-400">おしゃれなチャットアプリ</p>
+        </div>
+        
+        <div className="space-y-4">
+          <Link 
+            href="/login" 
+            className="w-full flex justify-center py-2 px-4 border border-transparent rounded-md shadow-sm text-sm font-medium text-white bg-gradient-to-r from-blue-500 to-indigo-600 hover:from-blue-600 hover:to-indigo-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500"
+          >
+            ログイン
+          </Link>
+          
+          <Link 
+            href="/register" 
+            className="w-full flex justify-center py-2 px-4 border border-gray-300 dark:border-gray-600 rounded-md shadow-sm text-sm font-medium text-gray-700 dark:text-gray-200 bg-white dark:bg-gray-700 hover:bg-gray-50 dark:hover:bg-gray-600 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500"
+          >
+            新規登録
+          </Link>
+        </div>
+        
+        <div className="mt-6 text-center">
+          <p className="text-sm text-gray-500 dark:text-gray-400">
+            デモモードで動作しています
+          </p>
+        </div>
+      </div>
     </div>
   );
-}
-
-import { getStats, incrementAndLog } from './counter'
-import { redirect } from 'next/navigation';
-
-redirect('/login');
-
-export default function Home() {
-  const [stats, setStats] = useState<{ count: number; recentAccess: { accessed_at: string }[] }>({
-    count: 0,
-    recentAccess: []
-  })
-  const [optimisticStats, setOptimisticStats] = useOptimistic(stats)
-  const [_, startTransition] = useTransition()
-
-  useEffect(() => {
-    getStats().then(setStats)
-  }, [])
-
-  const handleClick = async () => {
-    startTransition(async () => {
-      setOptimisticStats({
-        count: optimisticStats.count + 1,
-        recentAccess: [{ accessed_at: new Date().toISOString() }, ...optimisticStats.recentAccess.slice(0, 4)]
-      })
-      const newStats = await incrementAndLog()
-      setStats(newStats)
-    })
-  }
-
-  return (
-    <main className="flex min-h-screen items-center justify-center p-8 sm:p-24">
-      <Card className="p-6 sm:p-8 w-full max-w-sm">
-        <p className="text-2xl font-medium text-center mb-4">Views: {optimisticStats.count}</p>
-        <div className="flex justify-center mb-4">
-          <Button onClick={handleClick}>
-            <Plus className="h-4 w-4 mr-2" />
-            Increment
-          </Button>
-        </div>
-        <ScrollArea className="h-[100px]">
-          {optimisticStats.recentAccess.map((log, i) => (
-            <div key={i} className="text-sm text-muted-foreground text-center">
-              {new Date(log.accessed_at).toLocaleString()}
-            </div>
-          ))}
-        </ScrollArea>
-      </Card>
-    </main>
-  )
 }
